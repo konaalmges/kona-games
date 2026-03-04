@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kona Games – النتيجة</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="end-page">
+  <div class="end-card">
+    <span class="trophy-wrap" id="trophy">🏆</span>
+    <div class="winner-line" id="winner-line"></div>
+    <div class="scores-row" id="scores-row"></div>
+    <div class="end-meta" id="end-meta"></div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:4px">
+      <button class="btn btn-gold" style="font-size:17px;padding:15px 36px;" onclick="restart()">🔄 العب مرة ثانية</button>
+      <button class="btn btn-ghost" style="font-size:14px" onclick="location.href='/'">🏠 الرئيسية</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const raw = sessionStorage.getItem('konaState');
+if (!raw) { location.href='/'; }
+const S = JSON.parse(raw);
+const [t1,t2] = S.teams;
+
+let winnerText, trophy, w1=false, w2=false;
+if      (t1.score > t2.score) { winnerText=`🎉 <em>${t1.name}</em> يفوز!`; trophy='🏆'; w1=true; }
+else if (t2.score > t1.score) { winnerText=`🎉 <em>${t2.name}</em> يفوز!`; trophy='🏆'; w2=true; }
+else                           { winnerText='🤝 <em>تعادل</em> رائع!'; trophy='🤝'; }
+
+document.getElementById('trophy').textContent    = trophy;
+document.getElementById('winner-line').innerHTML = winnerText;
+
+document.getElementById('scores-row').innerHTML = `
+  <div class="score-card${w1?' winner':''}">
+    <div class="sc-name">${t1.name}</div>
+    <div class="sc-pts">${t1.score.toLocaleString()}</div>
+  </div>
+  <div class="score-card${w2?' winner':''}">
+    <div class="sc-name">${t2.name}</div>
+    <div class="sc-pts">${t2.score.toLocaleString()}</div>
+  </div>`;
+
+const totalQ   = Object.keys(S.usedCells).length;
+const duration = Math.round((Date.now() - (S.startTime||Date.now())) / 60000);
+const diff     = Math.abs(t1.score - t2.score);
+document.getElementById('end-meta').innerHTML = `
+  <div class="meta-item"><div class="meta-num">${totalQ}</div><div class="meta-lbl">أسئلة</div></div>
+  <div class="meta-item"><div class="meta-num">${duration || 1}د</div><div class="meta-lbl">الوقت</div></div>
+  <div class="meta-item"><div class="meta-num">${diff.toLocaleString()}</div><div class="meta-lbl">فرق النقاط</div></div>`;
+
+// Confetti
+function boom() {
+  const colors = ['#ffd700','#00e5cc','#ff4060','#00e676','#ffffff','#ff9900','#cc88ff'];
+  for (let i=0;i<140;i++) {
+    const el = document.createElement('div');
+    el.className = 'cc';
+    const sz = 5 + Math.random()*11;
+    el.style.cssText=`left:${Math.random()*100}vw;top:-16px;width:${sz}px;height:${sz*(Math.random()>.5?1:2.4)}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${2.3+Math.random()*2.6}s;animation-delay:${Math.random()*1.8}s;border-radius:${Math.random()>.5?'50%':'3px'};`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),7000);
+  }
+}
+boom(); setTimeout(boom,1100); setTimeout(boom,2400);
+
+function restart() {
+  sessionStorage.removeItem('konaState');
+  location.href = '/';
+}
+</script>
+</body>
+</html>

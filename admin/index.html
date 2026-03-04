@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kona Games – الأدمين</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body style="background:var(--cream)">
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-k">⚙️</div>
+    KONA <em>ADMIN</em>
+  </div>
+  <a href="/"><button class="btn btn-ghost" style="font-size:13px">↩ اللعبة</button></a>
+</header>
+
+<div class="admin-wrap">
+
+  <!-- Header card -->
+  <div class="admin-header">
+    <div>
+      <div class="admin-title">لوحة إدارة الأسئلة</div>
+      <div class="admin-sub">أضف وعدّل وامسح الأسئلة من هنا</div>
+    </div>
+    <div id="stats-wrap" style="display:flex;gap:16px;"></div>
+  </div>
+
+  <!-- Add Question -->
+  <div class="admin-card">
+    <div class="admin-card-title">➕ إضافة سؤال جديد</div>
+
+    <div class="form-2col">
+      <div class="field">
+        <label>الفئة</label>
+        <select class="form-select" id="add-cat"></select>
+      </div>
+      <div class="field">
+        <label>المستوى</label>
+        <select class="form-select" id="add-diff">
+          <option value="easy">🟢 سهل – 100 نقطة</option>
+          <option value="medium">🟡 متوسط – 300 نقطة</option>
+          <option value="hard">🔴 صعب – 500 نقطة</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:12px">
+      <label>السؤال</label>
+      <input type="text" class="admin-input" id="add-q" placeholder="اكتب السؤال هنا...">
+    </div>
+    <div class="field" style="margin-bottom:18px">
+      <label>الجواب</label>
+      <input type="text" class="admin-input" id="add-a" placeholder="اكتب الجواب هنا...">
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="btn btn-teal" onclick="addQuestion()">✓ إضافة السؤال</button>
+      <span id="add-msg" style="font-size:14px;font-weight:700;"></span>
+    </div>
+  </div>
+
+  <!-- Browse Questions -->
+  <div class="admin-card">
+    <div class="admin-card-title">📋 تصفح وحذف الأسئلة</div>
+
+    <div class="form-2col" style="margin-bottom:18px">
+      <div class="field">
+        <label>الفئة</label>
+        <select class="form-select" id="br-cat" onchange="loadQ()"></select>
+      </div>
+      <div class="field">
+        <label>المستوى</label>
+        <select class="form-select" id="br-diff" onchange="loadQ()">
+          <option value="easy">🟢 سهل</option>
+          <option value="medium">🟡 متوسط</option>
+          <option value="hard">🔴 صعب</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="q-list"></div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+let allCats = [];
+
+async function init() {
+  const r = await fetch('/api/categories');
+  allCats = await r.json();
+
+  allCats.forEach(c => {
+    ['add-cat','br-cat'].forEach(id => {
+      document.getElementById(id).innerHTML +=
+        `<option value="${c.id}">${c.emoji} ${c.name}</option>`;
+    });
+  });
+
+  // Stats
+  const total = allCats.reduce((sum,c) => sum + c.questionCount.easy + c.questionCount.medium + c.questionCount.hard, 0);
+  document.getElementById('stats-wrap').innerHTML = `
+    <div class="meta-item" style="text-align:center">
+      <div class="meta-num" style="color:var(--teal)">${allCats.length}</div>
+      <div class="meta-lbl">فئة</div>
+    </div>
+    <div class="meta-item" style="text-align:center">
+      <div class="meta-num" style="color:var(--gold)">${total}</div>
+      <div class="meta-lbl">سؤال</div>
+    </div>`;
+
+  loadQ();
+}
+
+async function loadQ() {
+  const cat  = document.getElementById('br-cat').value;
+  const diff = document.getElementById('br-diff').value;
+  const r    = await fetch(`/api/questions/${cat}`);
+  const data = await r.json();
+  const qs   = data[diff] || [];
+
+  const labels = { easy:'سهل', medium:'متوسط', hard:'صعب' };
+
+  if (!qs.length) {
+    document.getElementById('q-list').innerHTML =
+      `<p style="text-align:center;padding:24px;color:var(--muted);font-weight:700">لا توجد أسئلة في هذه الفئة</p>`;
+    return;
+  }
+
+  document.getElementById('q-list').innerHTML = `
+    <table class="q-table">
+      <thead><tr>
+        <th>#</th><th>السؤال</th><th>الجواب</th><th>المستوى</th><th>حذف</th>
+      </tr></thead>
+      <tbody>
+        ${qs.map((q,i) => `
+          <tr>
+            <td style="color:var(--muted);font-weight:700">${i+1}</td>
+            <td>${q.q}</td>
+            <td style="color:#096b36;font-weight:700">${q.a}</td>
+            <td><span class="diff-pill ${diff}">${labels[diff]}</span></td>
+            <td>
+              <button class="btn btn-danger" style="padding:5px 12px;font-size:12px"
+                onclick="deleteQ('${cat}','${diff}',${i})">حذف</button>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function addQuestion() {
+  const cat  = document.getElementById('add-cat').value;
+  const diff = document.getElementById('add-diff').value;
+  const q    = document.getElementById('add-q').value.trim();
+  const a    = document.getElementById('add-a').value.trim();
+  const msg  = document.getElementById('add-msg');
+
+  if (!q || !a) { msg.style.color='var(--danger)'; msg.textContent='❌ أكمل الحقول'; return; }
+
+  const r = await fetch('/api/admin/question', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ categoryId:cat, difficulty:diff, question:q, answer:a })
+  });
+
+  if (r.ok) {
+    msg.style.color = 'var(--success)';
+    msg.textContent = '✓ تمت الإضافة!';
+    document.getElementById('add-q').value = '';
+    document.getElementById('add-a').value = '';
+    loadQ();
+    setTimeout(() => msg.textContent='', 3000);
+  } else {
+    msg.style.color = 'var(--danger)'; msg.textContent = '❌ حدث خطأ';
+  }
+}
+
+async function deleteQ(cat, diff, idx) {
+  if (!confirm('حذف هذا السؤال؟')) return;
+  const r = await fetch('/api/admin/question', {
+    method:'DELETE', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ categoryId:cat, difficulty:diff, index:idx })
+  });
+  if (r.ok) loadQ();
+}
+
+init();
+</script>
+</body>
+</html>
