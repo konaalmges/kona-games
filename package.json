@@ -1,7 +1,7 @@
 {
   "name": "kona-games",
   "version": "1.0.0",
-  "description": "Kona Games - منصة ألعاب تريفيا عربية",
+  "description": "Kona Games - منصة ألعاب ترفيهية عربية",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
