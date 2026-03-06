@@ -7,64 +7,74 @@
 <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+
+<div id="rotate-screen">
+  <div class="r-icon">📱</div>
+  <h2>أدر هاتفك</h2>
+  <p>للحصول على أفضل تجربة<br>يرجى تدوير جهازك إلى الوضع الأفقي</p>
+</div>
+
 <div class="end-page">
   <div class="end-card">
-    <span class="trophy-wrap" id="trophy">🏆</span>
-    <div class="winner-line" id="winner-line"></div>
+    <span class="trophy-anim" id="trophy">🏆</span>
+    <div class="winner-txt" id="winner-txt">الفائز!</div>
     <div class="scores-row" id="scores-row"></div>
-    <div class="end-meta" id="end-meta"></div>
-    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:4px">
-      <button class="btn btn-gold" style="font-size:17px;padding:15px 36px;" onclick="restart()">🔄 العب مرة ثانية</button>
-      <button class="btn btn-ghost" style="font-size:14px" onclick="location.href='/'">🏠 الرئيسية</button>
+    <div class="end-stats" id="end-stats"></div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-yellow" style="font-size:17px;padding:15px 36px" onclick="restart()">
+        🔄 العب مرة ثانية
+      </button>
+      <button class="btn btn-white" style="font-size:14px" onclick="location.href='/'">
+        🏠 الرئيسية
+      </button>
     </div>
   </div>
 </div>
 
 <script>
 const raw = sessionStorage.getItem('konaState');
-if (!raw) { location.href='/'; }
+if (!raw) location.href = '/';
 const S = JSON.parse(raw);
-const [t1,t2] = S.teams;
+const [t1, t2] = S.teams;
 
-let winnerText, trophy, w1=false, w2=false;
-if      (t1.score > t2.score) { winnerText=`🎉 <em>${t1.name}</em> يفوز!`; trophy='🏆'; w1=true; }
-else if (t2.score > t1.score) { winnerText=`🎉 <em>${t2.name}</em> يفوز!`; trophy='🏆'; w2=true; }
-else                           { winnerText='🤝 <em>تعادل</em> رائع!'; trophy='🤝'; }
+let winnerTxt, trophy, w1 = false, w2 = false;
+if      (t1.score > t2.score) { winnerTxt = `🎉 ${t1.name} يفوز!`;  trophy = '🏆'; w1 = true; }
+else if (t2.score > t1.score) { winnerTxt = `🎉 ${t2.name} يفوز!`;  trophy = '🏆'; w2 = true; }
+else                           { winnerTxt = '🤝 تعادل رائع!';       trophy = '🤝'; }
 
 document.getElementById('trophy').textContent    = trophy;
-document.getElementById('winner-line').innerHTML = winnerText;
+document.getElementById('winner-txt').textContent = winnerTxt;
 
 document.getElementById('scores-row').innerHTML = `
   <div class="score-card${w1?' winner':''}">
     <div class="sc-name">${t1.name}</div>
-    <div class="sc-pts">${t1.score.toLocaleString()}</div>
+    <div class="sc-pts">${t1.score}</div>
   </div>
   <div class="score-card${w2?' winner':''}">
     <div class="sc-name">${t2.name}</div>
-    <div class="sc-pts">${t2.score.toLocaleString()}</div>
+    <div class="sc-pts">${t2.score}</div>
   </div>`;
 
-const totalQ   = Object.keys(S.usedCells).length;
-const duration = Math.round((Date.now() - (S.startTime||Date.now())) / 60000);
-const diff     = Math.abs(t1.score - t2.score);
-document.getElementById('end-meta').innerHTML = `
-  <div class="meta-item"><div class="meta-num">${totalQ}</div><div class="meta-lbl">أسئلة</div></div>
-  <div class="meta-item"><div class="meta-num">${duration || 1}د</div><div class="meta-lbl">الوقت</div></div>
-  <div class="meta-item"><div class="meta-num">${diff.toLocaleString()}</div><div class="meta-lbl">فرق النقاط</div></div>`;
+const totalQ    = Object.keys(S.usedCells).length;
+const duration  = Math.max(1, Math.round((Date.now() - (S.startTime || Date.now())) / 60000));
+const diff      = Math.abs(t1.score - t2.score);
+document.getElementById('end-stats').innerHTML = `
+  <div class="stat"><div class="stat-n">${totalQ}</div><div class="stat-l">أسئلة</div></div>
+  <div class="stat"><div class="stat-n">${duration}د</div><div class="stat-l">الوقت</div></div>
+  <div class="stat"><div class="stat-n">${diff}</div><div class="stat-l">فرق النقاط</div></div>`;
 
-// Confetti
-function boom() {
-  const colors = ['#ffd700','#00e5cc','#ff4060','#00e676','#ffffff','#ff9900','#cc88ff'];
-  for (let i=0;i<140;i++) {
+function burst() {
+  const colors = ['#ffc200','#2ec4c4','#ff4040','#18c964','#ffffff','#ff8800'];
+  for (let i = 0; i < 100; i++) {
     const el = document.createElement('div');
     el.className = 'cc';
-    const sz = 5 + Math.random()*11;
-    el.style.cssText=`left:${Math.random()*100}vw;top:-16px;width:${sz}px;height:${sz*(Math.random()>.5?1:2.4)}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${2.3+Math.random()*2.6}s;animation-delay:${Math.random()*1.8}s;border-radius:${Math.random()>.5?'50%':'3px'};`;
+    const sz = 6 + Math.random() * 10;
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;width:${sz}px;height:${sz*(Math.random()>.5?1:2.5)}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${2.5+Math.random()*2}s;animation-delay:${Math.random()*1.5}s;border-radius:${Math.random()>.5?'50%':'3px'};`;
     document.body.appendChild(el);
-    setTimeout(()=>el.remove(),7000);
+    setTimeout(() => el.remove(), 5500);
   }
 }
-boom(); setTimeout(boom,1100); setTimeout(boom,2400);
+burst(); setTimeout(burst, 1000);
 
 function restart() {
   sessionStorage.removeItem('konaState');
