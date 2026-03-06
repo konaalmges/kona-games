@@ -8,26 +8,33 @@
 </head>
 <body>
 
+<!-- شاشة تدوير الهاتف -->
+<div id="rotate-screen">
+  <div class="r-icon">📱</div>
+  <h2>أدر هاتفك</h2>
+  <p>للحصول على أفضل تجربة<br>يرجى تدوير جهازك إلى الوضع الأفقي</p>
+</div>
+
 <header class="header">
   <div class="logo">
-    <div class="logo-k">🎮</div>
+    <div class="logo-box">🎮</div>
     KONA <em>GAMES</em>
   </div>
-  <div class="header-actions">
-    <a href="/admin"><button class="btn btn-ghost" style="font-size:13px">⚙️ الأدمين</button></a>
+  <div class="header-right">
+    <a href="/admin"><button class="btn btn-ghost" style="font-size:13px">⚙️ أدمن</button></a>
   </div>
 </header>
 
 <div class="setup-layout">
 
-  <!-- LEFT: Category browser -->
+  <!-- يسار: الفئات -->
   <div class="cats-panel">
     <div class="panel-top">
       <div>
         <h2>اختر الفئات</h2>
-        <p class="panel-hint">⚠️ اختر 6 فئات لبدء اللعبة</p>
+        <p class="hint">⚠️ اختر ٦ فئات بالضبط لتبدأ اللعبة</p>
       </div>
-      <div class="sel-pill" id="sel-pill">0 / 6</div>
+      <div class="count-pill" id="count-pill">0 / 6</div>
     </div>
 
     <div class="search-wrap">
@@ -35,46 +42,48 @@
       <input type="text" class="search-bar" id="search" placeholder="ابحث عن فئة..." oninput="renderCats()">
     </div>
 
-    <div class="filter-tabs" id="filter-tabs">
+    <div class="filter-tabs">
       <button class="filter-tab active" onclick="setFilter('all',this)">الكل</button>
+      <button class="filter-tab" onclick="setFilter('sports',this)">⚽ رياضة</button>
       <button class="filter-tab" onclick="setFilter('knowledge',this)">🌍 معرفة</button>
       <button class="filter-tab" onclick="setFilter('fun',this)">🎭 ترفيه</button>
-      <button class="filter-tab" onclick="setFilter('sports',this)">⚽ رياضة</button>
       <button class="filter-tab" onclick="setFilter('religion',this)">🕌 دين</button>
+      <button class="filter-tab" onclick="setFilter('food',this)">🍕 طعام</button>
     </div>
 
     <div class="sect-label" id="sect-label">جميع الفئات</div>
     <div class="cats-grid" id="cats-grid"></div>
   </div>
 
-  <!-- RIGHT: Config -->
+  <!-- يمين: الإعداد -->
   <div class="config-panel">
-    <div class="config-title">الفئات المختارة</div>
+    <div class="cfg-title">الفئات المختارة</div>
     <div class="preview-grid" id="preview-grid"></div>
 
-    <div class="input-group">
-      <div class="input-label">🏷️ اسم اللعبة</div>
-      <input type="text" class="config-input" id="game-name" placeholder="Kona Night 🎉" maxlength="30">
+    <div>
+      <div class="cfg-label">🏷️ اسم اللعبة</div>
+      <input type="text" class="cfg-input" id="game-name" placeholder="Kona Night 🎉" maxlength="30">
     </div>
-    <div class="input-group">
-      <div class="input-label">🔵 الفريق الأول</div>
-      <input type="text" class="config-input" id="t1-name" placeholder="Team Alpha" maxlength="20">
+
+    <div>
+      <div class="cfg-label">🔵 الفريق الأول</div>
+      <input type="text" class="cfg-input" id="t1-name" placeholder="Team 1" maxlength="20">
     </div>
-    <div class="input-group">
-      <div class="input-label">🔴 الفريق الثاني</div>
-      <input type="text" class="config-input" id="t2-name" placeholder="Team Beta" maxlength="20">
+
+    <div>
+      <div class="cfg-label">🔴 الفريق الثاني</div>
+      <input type="text" class="cfg-input" id="t2-name" placeholder="Team 2" maxlength="20">
     </div>
 
     <div style="flex:1"></div>
 
-    <button class="btn btn-gold" id="start-btn" disabled onclick="startGame()" style="width:100%;justify-content:center;font-size:17px;padding:16px;">
+    <button class="btn btn-yellow" id="start-btn" disabled onclick="startGame()" style="width:100%;justify-content:center;font-size:17px;padding:16px;">
       ابدأ اللعبة 🎮
     </button>
   </div>
 </div>
 
 <div id="toast"></div>
-<script src="/js/cats-images.js"></script>
 <script src="/js/setup.js"></script>
 </body>
 </html>
