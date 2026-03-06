@@ -8,62 +8,92 @@
 </head>
 <body>
 
+<div id="rotate-screen">
+  <div class="r-icon">📱</div>
+  <h2>أدر هاتفك</h2>
+  <p>للحصول على أفضل تجربة<br>يرجى تدوير جهازك إلى الوضع الأفقي</p>
+</div>
+
 <header class="header">
   <div class="logo">
-    <div class="logo-k">🎮</div>
-    <span id="hdr-title">KONA <em>GAMES</em></span>
+    <div class="logo-box">🎮</div>
+    <em id="hdr-title">KONA GAMES</em>
   </div>
-  <div class="header-actions">
-    <span id="hdr-progress" style="color:rgba(255,255,255,0.5);font-size:13px;font-weight:700;"></span>
+  <div class="header-right">
+    <span id="hdr-pct" style="color:rgba(255,255,255,0.7);font-size:13px;font-weight:700;"></span>
     <button class="btn btn-ghost" style="font-size:13px" onclick="confirmExit()">↩ خروج</button>
   </div>
 </header>
 
 <div class="game-layout">
-  <div class="board-area" id="board-area">
-    <div class="board-bg" id="board-bg"></div>
+
+  <!-- اللوحة -->
+  <div class="board-area">
     <div class="board-grid" id="board"></div>
   </div>
 
+  <!-- الجانب الأيمن -->
   <div class="side-panel">
 
+    <!-- فريق 1 -->
     <div class="team-card" id="tc-0">
-      <div class="team-turn-badge">⚡ دورك الآن</div>
+      <div class="turn-badge">⚡ الدور عندك</div>
       <div class="team-name" id="tname-0">Team 1</div>
       <div class="team-score" id="tscore-0">0</div>
       <div class="score-row">
-        <button class="sc-btn" onclick="adj(0,200)">＋</button>
-        <button class="sc-btn" onclick="adj(0,-200)">－</button>
+        <button class="sc-btn" onclick="adj(0,100)">＋</button>
+        <button class="sc-btn" onclick="adj(0,-100)">－</button>
       </div>
-      <!-- المميزات تُستخدم فقط في صفحة السؤال -->
-      <div class="board-powers" id="bpow-0"></div>
+      <div class="powers" id="powers-0">
+        <div class="power" id="pow-0-x2" onclick="selectPower(0,'x2')">
+          ✕2<span>ضاعف</span>
+        </div>
+        <div class="power" id="pow-0-steal" onclick="selectPower(0,'steal')">
+          🎯<span>اسرق</span>
+        </div>
+        <div class="power" id="pow-0-skip" onclick="selectPower(0,'skip')">
+          ⏭️<span>تخطي</span>
+        </div>
+      </div>
     </div>
 
-    <button class="divider-btn" onclick="switchTurn()">⇄ تبديل الدور</button>
+    <!-- تبديل الدور -->
+    <button class="switch-btn" onclick="switchTurn()">⇄ تبديل الدور</button>
 
+    <!-- فريق 2 -->
     <div class="team-card" id="tc-1">
-      <div class="team-turn-badge">⚡ دورك الآن</div>
+      <div class="turn-badge">⚡ الدور عندك</div>
       <div class="team-name" id="tname-1">Team 2</div>
       <div class="team-score" id="tscore-1">0</div>
       <div class="score-row">
-        <button class="sc-btn" onclick="adj(1,200)">＋</button>
-        <button class="sc-btn" onclick="adj(1,-200)">－</button>
+        <button class="sc-btn" onclick="adj(1,100)">＋</button>
+        <button class="sc-btn" onclick="adj(1,-100)">－</button>
       </div>
-      <div class="board-powers" id="bpow-1"></div>
+      <div class="powers" id="powers-1">
+        <div class="power" id="pow-1-x2" onclick="selectPower(1,'x2')">
+          ✕2<span>ضاعف</span>
+        </div>
+        <div class="power" id="pow-1-steal" onclick="selectPower(1,'steal')">
+          🎯<span>اسرق</span>
+        </div>
+        <div class="power" id="pow-1-skip" onclick="selectPower(1,'skip')">
+          ⏭️<span>تخطي</span>
+        </div>
+      </div>
     </div>
 
+    <!-- Progress -->
     <div style="margin-top:auto">
-      <div class="board-progress-wrap">
-        <div class="board-progress-fill" id="prog-fill"></div>
+      <div class="progress-wrap">
+        <div class="progress-fill" id="prog-fill"></div>
       </div>
-      <div class="board-progress-label" id="prog-label">0 / 36 سؤال</div>
+      <div class="progress-lbl" id="prog-lbl">0 / 36 سؤال</div>
     </div>
 
   </div>
 </div>
 
 <div id="toast"></div>
-<script src="/js/cats-images.js"></script>
 <script src="/js/game.js"></script>
 </body>
 </html>
