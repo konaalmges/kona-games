@@ -1,22 +1,20 @@
-// ═══════════════════════════════
-// KONA GAMES – Setup v5.0
-// ═══════════════════════════════
+// KONA GAMES – Setup
 const MAX = 6;
-let allCats = [];
-let selected = [];
-let activeFilter = 'all';
+let allCats = [], selected = [], activeFilter = 'all';
 
 const filterMap = {
-  knowledge: ['geography','science','history','culture'],
-  fun:       ['movies','music','gaming','art','food'],
-  sports:    ['sports','nature'],
+  sports:    ['sports','football','saudi-football','champions-league','players'],
+  knowledge: ['geography','science','history','culture','nature'],
+  fun:       ['movies','music','gaming','art'],
   religion:  ['religion'],
+  food:      ['food'],
 };
 
 async function init() {
   const r = await fetch('/api/categories');
   allCats = await r.json();
-  renderCats(); renderPreview();
+  renderCats();
+  renderPreview();
 }
 
 function setFilter(f, el) {
@@ -30,79 +28,62 @@ function setFilter(f, el) {
 function renderCats() {
   const q = document.getElementById('search').value.trim().toLowerCase();
   let list = allCats.filter(c => {
-    const matchQ = !q || c.name.includes(q) || c.id.includes(q);
-    const matchF = activeFilter === 'all' || (filterMap[activeFilter] || []).includes(c.id);
-    return matchQ && matchF;
+    const mq = !q || c.name.includes(q) || c.id.includes(q);
+    const mf = activeFilter === 'all' || (filterMap[activeFilter] || []).includes(c.id);
+    return mq && mf;
   });
-
   document.getElementById('sect-label').textContent = `${list.length} فئة متاحة`;
   document.getElementById('cats-grid').innerHTML = list.map(c => {
-    const isSel = !!selected.find(s => s.id === c.id);
-    const isOff = !isSel && selected.length >= MAX;
-    const img = getCatImage(c.id);
-    return `
-      <div class="cat-card${isSel?' selected':''}${isOff?' disabled':''}"
-           data-id="${c.id}" onclick="toggleCat('${c.id}')">
-        <div class="cat-img-layer" style="background-image:url('${img}')"></div>
-        <div class="cat-overlay"></div>
-        <div class="cat-card-inner">
-          <span class="cat-emoji-badge">${c.emoji}</span>
-          <div class="cat-name">${c.name}</div>
-        </div>
-      </div>`;
+    const sel = !!selected.find(s => s.id === c.id);
+    const off = !sel && selected.length >= MAX;
+    return `<div class="cat-card${sel?' selected':''}${off?' disabled':''}" onclick="toggleCat('${c.id}')">
+      <div class="cat-check">✓</div>
+      <div class="cat-img">${c.emoji}</div>
+      <div class="cat-name">${c.name}</div>
+    </div>`;
   }).join('');
 }
 
 function toggleCat(id) {
   const cat = allCats.find(c => c.id === id);
   const idx = selected.findIndex(c => c.id === id);
-  if (idx >= 0) { selected.splice(idx, 1); }
+  if (idx >= 0) selected.splice(idx, 1);
   else {
-    if (selected.length >= MAX) { showToast('اختر 6 فئات فقط 🎯'); return; }
+    if (selected.length >= MAX) { showToast('اختر 6 فئات فقط 🎯', 'err'); return; }
     selected.push(cat);
   }
-  renderCats(); renderPreview(); updateStartBtn();
+  renderCats(); renderPreview(); updateBtn();
 }
 
 function removeSelected(id) {
   selected = selected.filter(c => c.id !== id);
-  renderCats(); renderPreview(); updateStartBtn();
+  renderCats(); renderPreview(); updateBtn();
 }
 
 function renderPreview() {
-  const pill = document.getElementById('sel-pill');
+  const pill = document.getElementById('count-pill');
   pill.textContent = `${selected.length} / ${MAX}`;
   pill.classList.toggle('full', selected.length === MAX);
 
-  let html = selected.map(c => {
-    const img = getCatImage(c.id);
-    return `
-      <div class="preview-item">
-        <div class="pi-img" style="background-image:url('${img}')"></div>
-        <div class="pi-overlay"></div>
-        <button class="preview-remove" onclick="removeSelected('${c.id}')">✕</button>
-        <div class="pi-content">
-          <span class="p-emoji">${c.emoji}</span>
-          ${c.name}
-        </div>
-      </div>`;
-  }).join('');
-
+  let html = selected.map(c => `
+    <div class="preview-item">
+      <button class="preview-rm" onclick="removeSelected('${c.id}')">✕</button>
+      <span class="pe">${c.emoji}</span>${c.name}
+    </div>`).join('');
   for (let i = selected.length; i < MAX; i++)
     html += `<div class="preview-empty">＋</div>`;
-
   document.getElementById('preview-grid').innerHTML = html;
 }
 
-function updateStartBtn() {
+function updateBtn() {
   document.getElementById('start-btn').disabled = selected.length !== MAX;
 }
 
 async function startGame() {
   if (selected.length !== MAX) return;
   const gameName = document.getElementById('game-name').value.trim() || 'Kona Night';
-  const t1 = document.getElementById('t1-name').value.trim() || 'Team Alpha';
-  const t2 = document.getElementById('t2-name').value.trim() || 'Team Beta';
+  const t1 = document.getElementById('t1-name').value.trim() || 'Team 1';
+  const t2 = document.getElementById('t2-name').value.trim() || 'Team 2';
 
   const btn = document.getElementById('start-btn');
   btn.textContent = '⏳ جاري التحميل...';
@@ -114,21 +95,21 @@ async function startGame() {
     questions[cat.id] = await r.json();
   }
 
-  sessionStorage.setItem('konaState', JSON.stringify({
-    gameName,
-    teams: [{ name: t1, score: 0 }, { name: t2, score: 0 }],
-    categories: selected,
-    questions,
-    currentTeam: 0,
-    usedCells: {},
-    usedPowers: { 0: [], 1: [] },
-    currentQ: null,
-    startTime: Date.now(),
-  }));
+  const state = {
+    gameName, startTime: Date.now(),
+    teams: [
+      { name: t1, score: 0, powers: { x2: false, steal: false, skip: false } },
+      { name: t2, score: 0, powers: { x2: false, steal: false, skip: false } },
+    ],
+    categories: selected, questions,
+    currentTeam: 0, usedCells: {}, currentQ: null,
+  };
+
+  sessionStorage.setItem('konaState', JSON.stringify(state));
   location.href = '/game.html';
 }
 
-function showToast(msg, type='') {
+function showToast(msg, type = '') {
   const t = document.getElementById('toast');
   t.textContent = msg; t.className = 'show ' + type;
   clearTimeout(t._t);
